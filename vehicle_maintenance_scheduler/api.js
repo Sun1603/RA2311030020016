@@ -4,6 +4,7 @@ const { Log } = require('../logging_middleware');
 
 const BASE_URL = 'http://20.207.122.201/evaluation-service';
 
+// Makes an authenticated GET request to the evaluation service
 async function authenticatedGet(endpoint) {
   const url = `${BASE_URL}${endpoint}`;
 
@@ -30,8 +31,9 @@ async function authenticatedGet(endpoint) {
   }
 }
 
+// Fetches all depots — each has an ID and a MechanicHours budget
 async function fetchDepots() {
-  await Log('backend', 'info', 'service', 'Fetching depot data from evaluation service');
+  await Log('backend', 'info', 'service', 'Fetching depot data');
 
   const data = await authenticatedGet('/depots');
 
@@ -40,18 +42,16 @@ async function fetchDepots() {
   }
 
   await Log(
-    'backend',
-    'info',
-    'service',
-    `Successfully fetched ${data.depots.length} depots. ` +
-    `Total mechanic-hours available: ${data.depots.reduce((sum, d) => sum + d.MechanicHours, 0)}`
+    'backend', 'info', 'service',
+    `Fetched ${data.depots.length} depots`
   );
 
   return data.depots;
 }
 
+// Fetches all vehicle maintenance tasks — each has TaskID, Duration, Impact
 async function fetchVehicles() {
-  await Log('backend', 'info', 'service', 'Fetching vehicle data from evaluation service');
+  await Log('backend', 'info', 'service', 'Fetching vehicle data');
 
   const data = await authenticatedGet('/vehicles');
 
@@ -63,11 +63,8 @@ async function fetchVehicles() {
   const totalImpact = data.vehicles.reduce((sum, v) => sum + v.Impact, 0);
 
   await Log(
-    'backend',
-    'info',
-    'service',
-    `Successfully fetched ${data.vehicles.length} vehicles. ` +
-    `Total duration: ${totalDuration}h, Total impact: ${totalImpact}`
+    'backend', 'info', 'service',
+    `Fetched ${data.vehicles.length} vehicles`
   );
 
   return data.vehicles;

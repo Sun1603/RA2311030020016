@@ -4,11 +4,16 @@ const { getAuthToken, clearTokenCache } = require('./auth');
 
 const LOG_API_URL = 'http://20.207.122.201/evaluation-service/logs';
 
+// Core logging function — sends a structured log entry to the remote service
+// Parameters: stack (backend/frontend), level (debug/info/warn/error/fatal),
+//             pkg (module name), message (log text, max 48 chars sent to API)
 async function Log(stack, level, pkg, message) {
+  // Normalize all inputs to lowercase as required by the API
   const normalizedStack = String(stack).toLowerCase();
   const normalizedLevel = String(level).toLowerCase();
   const normalizedPkg = String(pkg).toLowerCase();
 
+  // Validate inputs against allowed values before sending
   const validation = validateLogParams(normalizedStack, normalizedLevel, normalizedPkg, message);
   if (!validation.valid) {
     const errorMsg = `Log validation failed: ${validation.errors.join('; ')}`;
@@ -16,6 +21,7 @@ async function Log(stack, level, pkg, message) {
     return { success: false, error: errorMsg };
   }
 
+  // Build the payload (message truncated to 48 chars — API limit)
   const logPayload = {
     stack: normalizedStack,
     level: normalizedLevel,
@@ -36,6 +42,7 @@ async function Log(stack, level, pkg, message) {
     });
 
     if (!response.ok) {
+      // On 401, clear cached token and retry once with a fresh token
       if (response.status === 401) {
         clearTokenCache();
         const newToken = await getAuthToken();
@@ -65,6 +72,7 @@ async function Log(stack, level, pkg, message) {
 
     const data = await response.json();
 
+    // Print to local console for developer visibility
     const timestamp = new Date().toISOString();
     const levelIcon = { debug: '🔍', info: 'ℹ️', warn: '⚠️', error: '❌', fatal: '💀' };
     console.log(
@@ -79,33 +87,28 @@ async function Log(stack, level, pkg, message) {
   }
 }
 
+// Express middleware factory — logs every incoming request and outgoing response
+// Usage: app.use(createExpressLogger('backend', 'middleware'))
 function createExpressLogger(stack = 'backend', pkg = 'middleware') {
   return (req, res, next) => {
     const startTime = Date.now();
     const { method, originalUrl, ip } = req;
 
-    Log(
-      stack,
-      'info',
-      pkg,
-      `Incoming ${method} ${originalUrl} from ${ip}`
-    );
+    // Log the incoming request
+    Log(stack, 'info', pkg, `Incoming ${method} ${originalUrl} from ${ip}`);
 
+    // Intercept res.end to log the response after it finishes
     const originalEnd = res.end;
     res.end = function (...args) {
       const duration = Date.now() - startTime;
       const statusCode = res.statusCode;
 
+      // Pick log level based on status code
       let level = 'info';
       if (statusCode >= 500) level = 'error';
       else if (statusCode >= 400) level = 'warn';
 
-      Log(
-        stack,
-        level,
-        pkg,
-        `${method} ${originalUrl} → ${statusCode} (${duration}ms)`
-      );
+      Log(stack, level, pkg, `${method} ${originalUrl} → ${statusCode} (${duration}ms)`);
 
       originalEnd.apply(res, args);
     };

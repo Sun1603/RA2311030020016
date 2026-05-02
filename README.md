@@ -159,7 +159,3 @@ node server.js
 - **node-fetch** for HTTP requests
 - **dotenv** for environment variable management
 - **Dynamic Programming** for the knapsack optimization (no external solver libraries)
-
----
-
-Built by **Shreyangshu Das** (RA2311030020016)

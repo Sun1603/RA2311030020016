@@ -2,42 +2,36 @@ const { fetchDepots, fetchVehicles } = require('./api');
 const { solveKnapsack, solveForAllDepots } = require('./knapsack');
 const { Log } = require('../logging_middleware');
 
+// Runs the full scheduling pipeline:
+// 1. Fetch depots and vehicles from the evaluation API
+// 2. Solve the 0/1 knapsack for each depot
+// 3. Return the complete schedule with summary stats
 async function runScheduler() {
   const startTime = Date.now();
 
-  await Log(
-    'backend', 'info', 'service',
-    'Starting vehicle maintenance scheduler pipeline'
-  );
+  await Log('backend', 'info', 'service', 'Starting scheduler pipeline');
 
-  await Log('backend', 'info', 'service', 'Step 1/3: Fetching depot and vehicle data');
+  // Step 1: Fetch data from both endpoints in parallel
+  await Log('backend', 'info', 'service', 'Fetching depot and vehicle data');
 
   let depots, vehicles;
   try {
     [depots, vehicles] = await Promise.all([fetchDepots(), fetchVehicles()]);
   } catch (error) {
-    await Log(
-      'backend', 'fatal', 'service',
-      `Failed to fetch data from evaluation service: ${error.message}`
-    );
+    await Log('backend', 'fatal', 'service', `Data fetch failed: ${error.message}`);
     throw error;
   }
 
-  await Log(
-    'backend', 'debug', 'service',
-    `Data fetched: ${depots.length} depots, ${vehicles.length} vehicles`
-  );
+  await Log('backend', 'debug', 'service', `Got ${depots.length} depots, ${vehicles.length} vehicles`);
 
-  await Log('backend', 'info', 'service', 'Step 2/3: Running knapsack optimization for each depot');
+  // Step 2: Solve knapsack for each depot
+  await Log('backend', 'info', 'service', 'Running knapsack optimization');
 
   const schedules = [];
   for (const depot of depots) {
     const scheduleStart = Date.now();
 
-    await Log(
-      'backend', 'debug', 'service',
-      `Solving knapsack for Depot ${depot.ID} (capacity: ${depot.MechanicHours}h, items: ${vehicles.length})`
-    );
+    await Log('backend', 'debug', 'service', `Solving for Depot ${depot.ID}`);
 
     const result = solveKnapsack(vehicles, depot.MechanicHours);
     const scheduleTime = Date.now() - scheduleStart;
@@ -53,21 +47,17 @@ async function runScheduler() {
       processingTimeMs: scheduleTime
     });
 
-    await Log(
-      'backend', 'info', 'service',
-      `Depot ${depot.ID}: Selected ${result.selectedVehicles.length} vehicles, ` +
-      `total impact=${result.totalImpact}, duration=${result.totalDuration}/${depot.MechanicHours}h, ` +
-      `unused=${depot.MechanicHours - result.totalDuration}h (solved in ${scheduleTime}ms)`
+    await Log('backend', 'info', 'service',
+      `Depot ${depot.ID}: impact=${result.totalImpact}`
     );
   }
 
+  // Step 3: Build summary
   const totalOptimalImpact = schedules.reduce((sum, s) => sum + s.totalImpact, 0);
   const processingTimeMs = Date.now() - startTime;
 
-  await Log(
-    'backend', 'info', 'service',
-    `Step 3/3: Scheduling complete. Total optimal impact across all depots: ${totalOptimalImpact}. ` +
-    `Total processing time: ${processingTimeMs}ms`
+  await Log('backend', 'info', 'service',
+    `Done. Total impact: ${totalOptimalImpact}`
   );
 
   return {

@@ -1,7 +1,10 @@
+// Allowed stack values
 const VALID_STACKS = ['backend', 'frontend'];
 
+// Allowed log levels, ordered by severity
 const VALID_LEVELS = ['debug', 'info', 'warn', 'error', 'fatal'];
 
+// Backend-specific packages
 const BACKEND_PACKAGES = [
   'cache',
   'controller',
@@ -14,6 +17,7 @@ const BACKEND_PACKAGES = [
   'service'
 ];
 
+// Frontend-specific packages
 const FRONTEND_PACKAGES = [
   'api',
   'component',
@@ -23,6 +27,7 @@ const FRONTEND_PACKAGES = [
   'style'
 ];
 
+// Packages shared between both stacks
 const SHARED_PACKAGES = [
   'auth',
   'config',
@@ -30,15 +35,19 @@ const SHARED_PACKAGES = [
   'utils'
 ];
 
+// Combined valid packages per stack
 const VALID_PACKAGES = {
   backend: [...BACKEND_PACKAGES, ...SHARED_PACKAGES],
   frontend: [...FRONTEND_PACKAGES, ...SHARED_PACKAGES]
 };
 
+// Union of all valid packages
 const ALL_VALID_PACKAGES = [
   ...new Set([...BACKEND_PACKAGES, ...FRONTEND_PACKAGES, ...SHARED_PACKAGES])
 ];
 
+// Validates log parameters against allowed values
+// Returns { valid: boolean, errors: string[] }
 function validateLogParams(stack, level, pkg, message) {
   const errors = [];
 
