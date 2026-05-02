@@ -1,0 +1,17 @@
+{
+  "name": "vehicle-maintenance-scheduler",
+  "version": "1.0.0",
+  "description": "Microservice that optimizes daily vehicle maintenance scheduling using the 0/1 Knapsack algorithm",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node test.js"
+  },
+  "keywords": ["vehicle", "maintenance", "scheduler", "knapsack", "optimization"],
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.2.1",
+    "node-fetch": "^2.7.0",
+    "dotenv": "^16.4.7"
+  }
+}
