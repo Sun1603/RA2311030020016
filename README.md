@@ -159,3 +159,28 @@ node server.js
 - **node-fetch** for HTTP requests
 - **dotenv** for environment variable management
 - **Dynamic Programming** for the knapsack optimization (no external solver libraries)
+
+---
+
+## Output Screenshots
+
+### GET /health — Health Check
+**Response Time: ~263ms | Status: 200 OK**
+
+![health](output_screenshots/health.png)
+
+### GET /depots — Depot Data
+**Response Time: ~464ms | Status: 200 OK**
+
+![depots](output_screenshots/depots.png)
+
+### GET /vehicles — Vehicle Maintenance Tasks
+**Response Time: ~452ms | Status: 200 OK**
+
+![vehicles](output_screenshots/vehicles.png)
+
+### GET /schedule — Full Knapsack Optimization
+**Response Time: ~1446ms | Status: 200 OK**
+
+![schedule](output_screenshots/schedule.png)
+
