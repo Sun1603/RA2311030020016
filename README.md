@@ -162,25 +162,26 @@ node server.js
 
 ---
 
-## Output Screenshots
+## Output Screenshots (Postman)
 
 ### GET /health — Health Check
-**Response Time: ~263ms | Status: 200 OK**
+**Status: 200 OK | Response Time: 16ms | Size: 337 B**
 
-![health](output_screenshots/health.png)
+![postman_health](output_screenshots/postman_health.png)
 
 ### GET /depots — Depot Data
-**Response Time: ~464ms | Status: 200 OK**
+**Status: 200 OK | Response Time: 412ms | Size: 359 B**
 
-![depots](output_screenshots/depots.png)
+![postman_depots](output_screenshots/postman_depots.png)
 
 ### GET /vehicles — Vehicle Maintenance Tasks
-**Response Time: ~452ms | Status: 200 OK**
+**Status: 200 OK | Response Time: 619ms | Size: 2.86 KB**
 
-![vehicles](output_screenshots/vehicles.png)
+![postman_vehicles](output_screenshots/postman_vehicles.png)
 
 ### GET /schedule — Full Knapsack Optimization
-**Response Time: ~1446ms | Status: 200 OK**
+**Status: 200 OK | Response Time: 2.14s | Size: 11.58 KB**
 
-![schedule](output_screenshots/schedule.png)
+![postman_schedule](output_screenshots/postman_schedule.png)
+
 
